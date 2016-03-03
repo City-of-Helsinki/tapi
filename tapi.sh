@@ -245,6 +245,7 @@ function tapi-diff () {
     local cachefile_left="tapi-diff.$3"
     local cachefile_right="tapi-diff.$4"
     local cachefile=$cachefile_right
+    local ignore_fields=$5
     if [ ! -f $cachefile_left ]
     then
         echo "Generating contents for tag $3."
@@ -266,7 +267,7 @@ function tapi-diff () {
     if [ -f $cachefile_left -a -f $cachefile_right ]
     then
         echo "Both files ready, comparing."
-        json_diff.py $cachefile_left $cachefile_right
+        json_diff.py $cachefile_left $cachefile_right $ignore_fields
     else
         echo "Switch release and run again."
     fi

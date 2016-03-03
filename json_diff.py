@@ -9,6 +9,12 @@ from deep_equal import deep_eq
 if __name__ == '__main__':
     left_file = sys.argv[1]
     right_file = sys.argv[2]
+    try:
+        ignore_fields = sys.argv[3]
+    except IndexError:
+        ignore_fields = set()
+    if ignore_fields:
+        ignore_fields = set(map(lambda s: unicode(s.strip()), ignore_fields.split(',')))
 
     files = []
     with open(left_file, 'r') as fl:
@@ -56,11 +62,17 @@ if __name__ == '__main__':
         if not result:
             print 'Mismatch!', url
             try:
-                deep_eq(payload, comparison, _assert=True)
+                deep_eq(payload, comparison, _assert=True, ignore_fields=ignore_fields)
             except AssertionError as e:
                 print files[0]['file'].name, 'doesn\'t match', files[1]['file'].name
                 print(e.message)
                 pprint.pprint(payload, indent=2)
                 pprint.pprint(comparison, indent=2)
+            except Exception as e:
+                import sys
+                import traceback
+                ex_type, ex, tb = sys.exc_info()
+                traceback.print_tb(tb)
+                print(e.message)
     print('Match!')
     exit(0)
