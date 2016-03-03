@@ -241,11 +241,8 @@ function tapi-debug () {
     tapi-fail $logfile $count | awk '{print $2}' |\
     while read url
     do
-        ( read -p "Type d [enter] to debug $url in chrome: " yn
-          case $yn in
-            [Dd]* ) google-chrome --new-window $url; break;;
-            * ) break ;;
-          esac
+        ( read -p "Press [enter] for next URL"
+            google-chrome --new-window $url
         ) </dev/tty
     done
 }
