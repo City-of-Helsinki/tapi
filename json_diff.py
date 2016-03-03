@@ -1,8 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import json
 import sys
 import traceback
-import md5
+import hashlib
 import re
 import pprint
 from deep_equal import deep_eq
@@ -43,7 +43,7 @@ def main(left_file, right_file, ignore_fields):
     with open(left_file, 'r') as fl:
      with open(right_file, 'r') as fr:
         files = [{"file": f, "contents": {}} for f in [fl, fr]]
-        sums = set((md5.new(f['file'].read()).digest() for f in files))
+        sums = set((hashlib.md5(f['file'].read().encode('utf8')).digest() for f in files))
         if len(sums) == 1:
             print('The files are exact matches.' )
             exit(0)
@@ -51,24 +51,23 @@ def main(left_file, right_file, ignore_fields):
         for f in files:
             read_file(f)
 
-    for url, payload in files[0]['contents'].iteritems():
+    for url, payload in files[0]['contents'].items():
         comparison = files[1]['contents'][url]
         match = deep_eq(payload, comparison)
         if match:
             continue
-        print 'Mismatch!', url
+        print('Mismatch!', url)
         try:
             deep_eq(payload, comparison, _assert=True, ignore_fields=ignore_fields)
         except AssertionError as e:
-            print files[0]['file'].name, 'doesn\'t match', files[1]['file'].name
-            print(e.message)
+            print(files[0]['file'].name, 'doesn\'t match', files[1]['file'].name)
+            print(str(e))
             pprint.pprint(payload, indent=2)
             pprint.pprint(comparison, indent=2)
         except Exception as e:
             ex_type, ex, tb = sys.exc_info()
             traceback.print_tb(tb)
             print(e.message)
-    print('Match!')
     exit(0)
 
 if __name__ == '__main__':
@@ -79,6 +78,6 @@ if __name__ == '__main__':
     except IndexError:
         ignore_fields = set()
     if ignore_fields:
-        ignore_fields = set(map(lambda s: unicode(s.strip()), ignore_fields.split(',')))
+        ignore_fields = set([s.strip() for s in  ignore_fields.split(',')])
 
     main(left_file, right_file, ignore_fields)

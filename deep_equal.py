@@ -90,10 +90,10 @@ def deep_eq(_v1, _v2, datetime_fudge=default_fudge, _assert=False, ignore_fields
   _deep_eq = functools.partial(deep_eq, datetime_fudge=datetime_fudge,
                                _assert=_assert, ignore_fields=ignore_fields)
 
-  def _check_assert(R, a, b, reason=''):
+  def _check_assert(R, a, b, reason):
     if _assert and not R:
-      assert 0, "an assertion has failed in deep_eq (%s)\n%s\n!=\n %s" % (
-        reason, str(a), str(b))
+      assert False, ("an assertion has failed in deep_eq (%s)\n%s\n!=\n %s" % (
+        reason, str(a), str(b)))
     return R
 
   def _deep_dict_eq(d1, d2):
@@ -144,11 +144,8 @@ def deep_eq(_v1, _v2, datetime_fudge=default_fudge, _assert=False, ignore_fields
   # guard against strings because they are iterable and their
   # elements yield iterables infinitely.
   # I N C E P T I O N
-  for t in types.StringTypes:
-    if isinstance(_v1, t):
-      break
-  else:
-    if isinstance(_v1, types.DictType) and isinstance(_v2, types.DictType):
+  if not isinstance(_v1, str):
+    if isinstance(_v1, dict) and isinstance(_v2, dict):
       op = _deep_dict_eq
     else:
       try:
