@@ -106,7 +106,15 @@ def deep_eq(_v1, _v2, datetime_fudge=default_fudge, _assert=False, ignore_fields
         del d2[field]
     k1, k2 = (sorted(d1.keys()), sorted(d2.keys()))
     if k1 != k2: # keys should be exactly equal
-      return _check_assert(False, k1, k2, "keys")
+      not_found1 = set()
+      not_found2 = set()
+      for k in k1:
+        if k not in k2:
+          not_found2.add(k)
+      for k in k2:
+        if k not in k1:
+          not_found1.add(k)
+      return _check_assert(False, k1, k2, "keys not found: (%s | %s)" % (','.join(not_found1), ','.join(not_found2)))
 
     return _check_assert(operator.eq(sum(_deep_eq(d1[k], d2[k])
                                        for k in k1),
