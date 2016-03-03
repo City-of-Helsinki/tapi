@@ -140,7 +140,7 @@ def deep_eq(_v1, _v2, datetime_fudge=default_fudge, _assert=False, ignore_fields
     if isinstance(_v1, t):
       break
   else:
-    if isinstance(_v1, types.DictType):
+    if isinstance(_v1, types.DictType) and isinstance(_v2, types.DictType):
       op = _deep_dict_eq
     else:
       try:
