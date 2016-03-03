@@ -22,7 +22,8 @@ import datetime, time, functools, operator, types
 
 default_fudge = datetime.timedelta(seconds=0, microseconds=0, days=0)
 
-def deep_eq(_v1, _v2, datetime_fudge=default_fudge, _assert=False):
+def deep_eq(_v1, _v2, datetime_fudge=default_fudge, _assert=False, ignore_fields=set(),
+            ignore_values=True):
   """
   Tests for deep equality between two python data structures recursing
   into sub-structures if necessary. Works with all python types including
@@ -87,7 +88,7 @@ def deep_eq(_v1, _v2, datetime_fudge=default_fudge, _assert=False):
   True
   """
   _deep_eq = functools.partial(deep_eq, datetime_fudge=datetime_fudge,
-                               _assert=_assert)
+                               _assert=_assert, ignore_fields=ignore_fields)
 
   def _check_assert(R, a, b, reason=''):
     if _assert and not R:
@@ -96,6 +97,13 @@ def deep_eq(_v1, _v2, datetime_fudge=default_fudge, _assert=False):
     return R
 
   def _deep_dict_eq(d1, d2):
+    if not d2:
+      return _check_assert(False, d1, d2, "dict is None")
+    for field in ignore_fields:
+      if d1 and field in d1:
+        del d1[field]
+      if d2 and field in d2:
+        del d2[field]
     k1, k2 = (sorted(d1.keys()), sorted(d2.keys()))
     if k1 != k2: # keys should be exactly equal
       return _check_assert(False, k1, k2, "keys")
@@ -119,6 +127,8 @@ def deep_eq(_v1, _v2, datetime_fudge=default_fudge, _assert=False):
       l = t1 - t2
       l = -l if l > 0 else l
       return _check_assert((-s if s > 0 else s) <= l, a, b, "dates")
+    if ignore_values:
+      return True
     return _check_assert(_op(a, b), a, b, "values")
 
   c1, c2 = (_v1, _v2)
