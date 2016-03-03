@@ -140,6 +140,11 @@ function __output_failure () {
         || curl -H "Host: $API_HOSTNAME" -o /dev/null -s -w "%{http_code} $url\n" "$url"
 }
 
+function __message () {
+    local msg=$1
+    ( echo -e "$msg" >&2 )
+}
+
 function distribution () {
     local logfile=$1
     __blacklisted_urls $logfile | egrep -o '^ +[0-9]+' \
@@ -209,6 +214,12 @@ function tapi-fail () {
             while read url
             do
                 __output_failure $url
+                ((count=count-1))
+                local mod=$(($count % 10))
+                if [ $mod -eq 0 ]
+                then
+                    __message "$count urls left"
+                fi
             done >$cachefile
     fi
     cat $cachefile
