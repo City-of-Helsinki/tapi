@@ -92,7 +92,7 @@ def deep_eq(_v1, _v2, datetime_fudge=default_fudge, _assert=False, ignore_fields
 
   def _check_assert(R, a, b, reason=''):
     if _assert and not R:
-      assert 0, "an assertion has failed in deep_eq (%s) %s != %s" % (
+      assert 0, "an assertion has failed in deep_eq (%s)\n%s\n!=\n %s" % (
         reason, str(a), str(b))
     return R
 
